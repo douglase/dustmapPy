@@ -1,0 +1,3 @@
+[submodule "dustmap"]
+	path = dustmap
+	url = git@github.mit.edu:eEriAsteroidBeltHunt/dustmap.git
