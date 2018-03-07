@@ -20,16 +20,18 @@ np.import_array()
 #@cython.wraparound(False)
 
 cdef extern from "dustmap/dmdatatypes.h":
-    void cos_doubles (double * in_array, double * out_array, int size)
+    void cos_doubles (double * in_array,
+     double * out_array,
+     int size)
 #    void runRT(double * in_array,double * out_array, int in_col, int in_row)
 
 # cdefine the signature of our c function
 # these variables are cast as if they are C
 cdef extern from "dustmap/dmdatatypes.h":
-  void dustmap(double* hist,
+  void dustmap(double * hist,
           int histoxsize,
            int histoysize,
-           char* inputfile4c,
+           char * inputfile4c,
            int numfiles,
            int datatype,
            float distance,
@@ -39,15 +41,15 @@ cdef extern from "dustmap/dmdatatypes.h":
            float inclination,
            float longitude,
            float pa,
-           float* wavel,
+           float * wavel,
            int nlambda,
            float Lstar,
            float Tstar,
            float logg,
            int kurucz,
            char* kuruczfile4c,
-           float* fstar,
-           float* rdust,
+           float * fstar,
+           float * rdust,
            float Tsublimate,
            char* lnkfile4c,
            int* scaling,
@@ -88,9 +90,8 @@ def cos_doubles_func(np.ndarray[double, ndim=1, mode="c"] in_array not None,
     cos_doubles(<double*> np.PyArray_DATA(in_array),
                 <double*> np.PyArray_DATA(out_array),
                 in_array.shape[0])
-"""
 def dustmap (inputfile,
-          np.ndarray[np.double_t, ndim=2, mode="c"] hist,
+          np.ndarray[double, ndim=1, mode="c"] hist not None,
           distance,
           fov,
           pixelsize,
@@ -109,7 +110,7 @@ def dustmap (inputfile,
           Lstar,
           kurucz,
           logg,
-          np.ndarray[np.double_t, ndim=1, mode="c"] fstar,
+          np.ndarray[double, ndim=1, mode="c"] fstar not None,
           scaling,
           iwa,
           rdust, composition, lnkfile,
@@ -148,14 +149,14 @@ def dustmap (inputfile,
           thermalemission_flag=0,
           verbose_flag=0,
           ):
-"""
+          """
           #this is not recommded way of passing variables:https://github.com/cython/cython/wiki/tutorials-NumpyPointerToC
           #but like: https://stackoverflow.com/questions/20182147/declaring-numpy-array-with-int-type-and-pass-array-pointer-to-c-code
           #I couldn't get the recommended way to work
 
           #Make sure variables are defined to be compatible with dustmap_c.c
 
-"""
+          """
 
           if noprint:
             reduceprint=1
@@ -262,7 +263,10 @@ def dustmap (inputfile,
           hist  = np.ascontiguousarray(hist)
           fstar  = np.ascontiguousarray(fstar)
           rdust  = np.ascontiguousarray(rdust)
-          dustmap(<double*> np.PyArray_DATA(hist),
+          cos_doubles(<double*> np.PyArray_DATA(hist),
+                      <double*> np.PyArray_DATA(hist),
+                      hist.shape[0])
+          dustmap(hist.data.as_doubles,
                   <int> hist.shape[1],
                   <int> hist.shape[0],
                   <char*> inputfile4c,
@@ -275,18 +279,18 @@ def dustmap (inputfile,
                   <float> inclination,
                   <float> longitude,
                   <float> pa,
-                  <float*> np.PyArray_DATA(wavel),
+                  wavel.data.as_doubles,
                   <int> nlambda,
                   <float> Lstar,
                   <float> Tstar,
                   <float> logg,
                   <int> kurucz,
                   <char*> kuruczfile4c,
-                  <float*> &fstar[0,0],
-                  <float*> &rdust[0,0],
+                  fstar.data,
+                  rdust.data,
                   <float> Tsublimate,
                   <char*> lnkfile4c,
-                  <int*> np.PyArray_DATA(scaling),
+                  scaling.data,
                   <float> iwa,
                   <int> aitoff_flag,
                   <int> densityhisto_flag,
@@ -302,19 +306,18 @@ def dustmap (inputfile,
                   <int> extinction_flag,
                   <float> xshift,
                   <float> effrdust,
-                  <float*> np.PyArray_DATA(markx),
-                  <float*> np.PyArray_DATA(marky),
-                  <float*> np.PyArray_DATA(markz),
-                  <float*> np.PyArray_DATA(markweight),
+                  markx.data,
+                  marky.data,
+                  markz.data,
+                  markweight.data,
                   <int> nmarks,
                   <int> markabs_flag,
                   <int> azavg,
                   <float> distmask,
-                  <float*> np.PyArray_DATA(ncostheta), #npfunc in dustmap_c.c
-                  <float*> np.PyArray_DATA(internal_pfunc),
-                  <float*> np.PyArray_DATA(costheta),
-                  <float*> np.PyArray_DATA(pfunc),
-                  <float*> np.PyArray_DATA(qabs),
-                  <float*> np.PyArray_DATA(qsca),
+                  ncostheta.data, #npfunc in dustmap_c.c
+                  internal_pfunc.data,
+                  costheta.data,
+                  pfunc.data,
+                  qabs.data,
+                  qsca.data,
                   <int> nrdust)
-"""
