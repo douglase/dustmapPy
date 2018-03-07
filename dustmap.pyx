@@ -1,10 +1,16 @@
-#using Cython:
-""" Example of wrapping a C function that takes C double arrays as input using
-    the Numpy declarations from Cython """
+
+"""
+    edouglas@mit.edu
+    Modified from scipy-lectures.org:
+    http://www.scipy-lectures.org/advanced/interfacing_with_c/interfacing_with_c.html#id10
+    CC Attribution license: https://github.com/scipy-lectures/scipy-lecture-notes/blob/master/LICENSE.rst
+"""
 
 # import both numpy and the Cython declarations for numpy
-#import numpy as np
+import numpy as np
 cimport numpy as np
+import astropy.units as u
+
 import cython
 # if you want to use the Numpy-C-API from Cython
 # (not strictly necessary for this example)
@@ -13,116 +19,302 @@ np.import_array()
 #@cython.boundscheck(False)
 #@cython.wraparound(False)
 
+cdef extern from "dustmap/dmdatatypes.h":
+    void cos_doubles (double * in_array, double * out_array, int size)
+#    void runRT(double * in_array,double * out_array, int in_col, int in_row)
+
 # cdefine the signature of our c function
-cdef extern from "dustmap_c.h":
-# void cos_doubles (double * in_array, double * out_array, int size)
-    void runRT(double * in_array,double * out_array, int in_col, int in_row)
+# these variables are cast as if they are C
+cdef extern from "dustmap/dmdatatypes.h":
+  void dustmap(double* hist,
+          int histoxsize,
+           int histoysize,
+           char* inputfile4c,
+           int numfiles,
+           int datatype,
+           float distance,
+           float fovx,
+           float fovy,
+           float pixelsize,
+           float inclination,
+           float longitude,
+           float pa,
+           float* wavel,
+           int nlambda,
+           float Lstar,
+           float Tstar,
+           float logg,
+           int kurucz,
+           char* kuruczfile4c,
+           float* fstar,
+           float* rdust,
+           float Tsublimate,
+           char* lnkfile4c,
+           int* scaling,
+           float iwa,
+           int aitoff_flag,
+           int densityhisto_flag,
+           int opticaldepth_flag,
+           int scatteredlight_flag,
+           int thermalemission_flag,
+           int verbose_flag,
+           float oc_generic_flag,
+           float generic_oc_exp,
+           float generic_oc_albedo,
+           float HG_flag,
+           int HG_g,
+           int extinction_flag,
+           float xshift,
+           float effrdust,
+           float* markx,
+           float* marky,
+           float* markz,
+           float* markweight,
+           int nmarks,
+           int markabs_flag,
+           int azavg,
+           float distmask,
+           float* ncostheta,
+           float* internal_pfunc,
+           float* costheta,
+           float* pfunc,
+           float* qabs,
+           float* qsca,
+           int nrdust)
+
+# create the wrapper function in python, with numpy type annotations
+def cos_doubles_func(np.ndarray[double, ndim=1, mode="c"] in_array not None,
+                     np.ndarray[double, ndim=1, mode="c"] out_array not None):
+    cos_doubles(<double*> np.PyArray_DATA(in_array),
+                <double*> np.PyArray_DATA(out_array),
+                in_array.shape[0])
+"""
+def dustmap (inputfile,
+          np.ndarray[np.double_t, ndim=2, mode="c"] hist,
+          distance,
+          fov,
+          pixelsize,
+          numpixels,
+          datatype,
+          inclination,
+          longitude,
+          pa,
+          #au,
+          #degrees,
+          opticaldepth,
+          scattered,
+          thermal,
+          np.ndarray[double, ndim=1, mode="c"] wavel, #was lambda
+          Tstar,
+          Lstar,
+          kurucz,
+          logg,
+          np.ndarray[np.double_t, ndim=1, mode="c"] fstar,
+          scaling,
+          iwa,
+          rdust, composition, lnkfile,
+          Tsublimate,
+          qexp,
+          generic_oc_albedo,
+          generic_oc_exp,
+          HG_g,
+          HG_flag,
+          pfunc,
+          costheta,
+          ncostheta,
+          qabs_out,
+          qsca_out,
+          aitoff_flag,
+          allsky,
+          vga,
+          hd,
+          lag,
+          xshift,
+          effrdust,
+          markx,
+          marky,
+          markz,
+          markweight,
+          nmarks,
+          markabs_flag,
+          azavg,
+          distmask,
+          noprint=1,
+          oc_generic_flag = 0,
+          extinction_flag=0, #ext,
+          densityhisto_flag=0,
+          opticaldepth_flag=0,
+          scatteredlight_flag=0,
+          thermalemission_flag=0,
+          verbose_flag=0,
+          ):
+"""
+          #this is not recommded way of passing variables:https://github.com/cython/cython/wiki/tutorials-NumpyPointerToC
+          #but like: https://stackoverflow.com/questions/20182147/declaring-numpy-array-with-int-type-and-pass-array-pointer-to-c-code
+          #I couldn't get the recommended way to work
+
+          #Make sure variables are defined to be compatible with dustmap_c.c
 
 """
-idl code:
 
-;Now call dustmap_c.c and have it do the dirty work      
-x = CALL_EXTERNAL(dustmappath+'dustmap_c.so', 'dustmap_c', $
-                  histo, histoxsize, histoysize, inputfile4c, numfiles, datatype, $
-                  userdistance, fovx, fovy, userpixelsize, userinclination, userlongitude, userpa, $
-                  lambda, nlambda, Lstar, Tstar, logg, kurucz, kuruczfile4c, fstar, $
-                  rdust, Tsublimate, lnkfile4c, userscaling, $
-                  iwa, aitoff_flag, densityhisto_flag, opticaldepth_flag, $
-                  scatteredlight_flag, thermalemission_flag, verbose_flag, $
-                  oc_generic_flag, generic_oc_exp, generic_oc_albedo, HG_flag, HG_g, $
-                  extinction_flag, xshift, effrdust, $
-                  markx, marky, markz, markweight, nmarks, markabs_flag, azavg, distmask, $
-                  ncostheta, internal_pfunc, costheta, pfunc, qabs, qsca, nrdust)
+          if noprint:
+            reduceprint=1
 
+          #kurucz_file = dustmappath+'fp00k2odfnew.pck'
+          #TEMPORARY - assume running in same path
+          kurucz_file = 'dustmap/fp00k2odfnew.pck'
+          kuruczfile4c = kurucz_file
+
+          #; Convert fov and pixelsize from degrees to mas if necessary
+
+          #eventuallydo unit conversions with astropy units
+
+          fov = fov.to(u.milliarcsecond).value
+          pixelsize = pixelsize.to(u.milliarcsecond).value
+          iwa = iwa.to(u.milliarcsecond).value
+
+          #; Convert distance from AU to pc if necessary
+          #if keyword_set(au) then distance /= 206265.0 ;convert from AU to parsec
+          #if keyword_set(au) and keyword_set(distmask) then distmask /= 206265.0 ;convert from AU to parsec
+
+
+
+          #dustmap expects a list of files seperated by \0
+          #
+          #iflen=len(ffile)
+          #ifn=n_elements(inputfile)
+          #ifn=ifn[0]
+          #inputfile4c=bytarr(total(iflen) + ifn)
+          #3strloc=0
+          #for i in range(ifn):
+          #  inputfile4c[strloc:strloc+iflen[i]-1] = byte(inputfile[i])
+          #    inputfile4c[strloc+iflen[i]] = byte(0)
+          #      strloc += (iflen[i] + 1)
+          '''if (len(inputfile)>1) & (isintance(inputfile,list)):
+            print("Warning, not tested with multiple input yet")
+            inputfile4c="\0".join(files)
+            symlist=["\'","]","["," ",".",","]
+            for sym in symlist:
+              #print(sym)
+              inputfile4c=inputfile4c.replace(sym,"")
+              numfiles = np.int(n_elements(inputfile))
+          else:
+            numfiles=1
+            inputfile4c = inputfile'''
+          numfiles=1
+          inputfile4c = inputfile
+          #distance = np.float_(distance)
+          fovx = np.float64(fov[0])
+          fovy = np.float64(fov[1])
+          #pixelsize = np.float_(pixelsize)
+          #inclination = np.float_(inclination)
+          #longitude = np.float_(longitude)
+          #pa = np.float_(pa)
+          #wavel = np.float_(wavel) #so python lambda isn't renamed
+          nlambda = np.size(wavel)
+          #lstar = np.float_(lstar)
+          #Tstar = np.float_(Tstar)
+          #logg = np.float_(logg)
+          #kurucz = np.int(kurucz)
+          #fstar = np.ndarray(np.float32, ndim=1, mode="c")#fltarr(nlambda)
+          rdust = np.float32(rdust)
+          #Tsublimate = np.float_(Tsublimate)
+          #lnkfile4c = bytarr(strlen(lnkfile)+1)
+          lnkfile4c = lnkfile
+          #lnkfile4c[0:strlen(lnkfile)-1] = byte(lnkfile)
+          #lnkfile4c[strlen(lnkfile)] = byte(0)
+          #kuruczfile4c = bytarr(strlen(kurucz_file)+1)
+          #kuruczfile4c[0:strlen(kurucz_file)-1] = byte(kurucz_file)
+          #kuruczfile4c[strlen(kurucz_file)] = byte(0)
+          #scaling = np.float__(scaling)
+          #iwa = np.float_(iwa)
+          #aitoff_flag = np.int(aitoff_flag)
+          #densityhisto_flag = np.int(densityhisto_flag)
+          #opticaldepth_flag = np.int(opticaldepth_flag)
+          #scatteredlight_flag = np.int(scatteredlight_flag)
+          #thermalemission_flag = np.int(thermalemission_flag)
+          #verbose_flag = np.int(verbose_flag)
+          #generic_oc_exp = np.float_(qexp)
+          #generic_oc_albedo = np.float_(albedo)
+          #HG_g = np.float_(g)
+          #oc_generic_flag = np.int(oc_generic_flag)
+          #HG_flag = np.int(HG_flag)
+          #extinction_flag = np.int(ext)
+          #xshift = np.float_(xshift)
+          #effrdust = np.float_(effrdust)
+          #markx = np.float_(markx)
+          #marky = np.float_(marky)
+          #markz = np.float_(markz)
+          #markweight = np.float_(markweight)
+          #nmarks = np.int(nmarks)
+          #markabs_flag = np.int(markabs_flag)
+          #azavg = np.int(azavg)
+          #distmask = np.float_(distmask)
+          #ncostheta = np.int(ncostheta)
+          internal_pfunc = np.ndarray(shape=(nlambda,ncostheta), mode="c")#fltarr(nlambda,ncostheta)
+          costheta =  np.ndarray(shape=(ncostheta))
+          nrdust=np.unique(rdust, return_inverse=False, return_counts=False, axis=None).size #nrdust = n_elements(uniq(rdust,sort(rdust)))
+          pfunc = np.ndarray(shape=(nrdust,nlambda,ncostheta), mode="c")#pfunc = fltarr(nrdust,nlambda,ncostheta)
+          qabs  = np.ndarray(shape=(nrdust,nlambda), mode="c")# fltarr(nrdust,nlambda)
+          qsca  = np.ndarray(shape=(nrdust,nlambda), mode="c")# fltarr(nrdust,nlambda)
+
+          #args=["1","2","3"]
+          hist  = np.ascontiguousarray(hist)
+          fstar  = np.ascontiguousarray(fstar)
+          rdust  = np.ascontiguousarray(rdust)
+          dustmap(<double*> np.PyArray_DATA(hist),
+                  <int> hist.shape[1],
+                  <int> hist.shape[0],
+                  <char*> inputfile4c,
+                  <int> numfiles,
+                  <int> datatype,
+                  <float> distance,
+                  <float> fovx,
+                  <float> fovy,
+                  <float> pixelsize,
+                  <float> inclination,
+                  <float> longitude,
+                  <float> pa,
+                  <float*> np.PyArray_DATA(wavel),
+                  <int> nlambda,
+                  <float> Lstar,
+                  <float> Tstar,
+                  <float> logg,
+                  <int> kurucz,
+                  <char*> kuruczfile4c,
+                  <float*> &fstar[0,0],
+                  <float*> &rdust[0,0],
+                  <float> Tsublimate,
+                  <char*> lnkfile4c,
+                  <int*> np.PyArray_DATA(scaling),
+                  <float> iwa,
+                  <int> aitoff_flag,
+                  <int> densityhisto_flag,
+                  <int> opticaldepth_flag,
+                  <int> scatteredlight_flag,
+                  <int> thermalemission_flag,
+                  <int> verbose_flag,
+                  <int> oc_generic_flag,
+                  <float> generic_oc_exp,
+                  <float> generic_oc_albedo,
+                  <float> HG_flag,
+                  <int> HG_g,
+                  <int> extinction_flag,
+                  <float> xshift,
+                  <float> effrdust,
+                  <float*> np.PyArray_DATA(markx),
+                  <float*> np.PyArray_DATA(marky),
+                  <float*> np.PyArray_DATA(markz),
+                  <float*> np.PyArray_DATA(markweight),
+                  <int> nmarks,
+                  <int> markabs_flag,
+                  <int> azavg,
+                  <float> distmask,
+                  <float*> np.PyArray_DATA(ncostheta), #npfunc in dustmap_c.c
+                  <float*> np.PyArray_DATA(internal_pfunc),
+                  <float*> np.PyArray_DATA(costheta),
+                  <float*> np.PyArray_DATA(pfunc),
+                  <float*> np.PyArray_DATA(qabs),
+                  <float*> np.PyArray_DATA(qsca),
+                  <int> nrdust)
 """
-
-# create the wrapper code, with numpy type annotations
-def runRT_func(np.ndarray[double, ndim=3, mode="c"] histo not None,
-                   diskmask=0):
-    """
-   
-    """
-    #this is not recommded way of passing variables:https://github.com/cython/cython/wiki/tutorials-NumpyPointerToC
-    #but like: https://stackoverflow.com/questions/20182147/declaring-numpy-array-with-int-type-and-pass-array-pointer-to-c-code
-    #I couldn't get the recommended way to work
-    
-    #Make sure variables are defined to be compatible with dustmap_c.c
-iflen=strlen(inputfile)
-ifn=n_elements(inputfile)
-ifn=ifn[0]
-inputfile4c=bytarr(total(iflen) + ifn)
-strloc=0
-for i=0,ifn-1 do begin
-   inputfile4c[strloc:strloc+iflen[i]-1] = byte(inputfile[i])
-   inputfile4c[strloc+iflen[i]] = byte(0)
-   strloc += (iflen[i] + 1)
-endfor
-numfiles = long(n_elements(inputfile))
-datatype = long(datatype)
-userdistance = float(userdistance)
-fovx = float(userfov[0])
-fovy = float(userfov[1])
-userpixelsize = float(userpixelsize)
-userinclination = float(userinclination)
-userlongitude = float(userlongitude)
-userpa = float(userpa)
-#wavel = float(wavel) #so python lambda isn't renamed
-#nlambda = long(wav)
-lstar = float(lstar)
-Tstar = float(Tstar)
-logg = float(logg)
-kurucz = long(kurucz)
-fstar = np.ndarray[float, ndim=1, mode="c"]#fltarr(nlambda)
-rdust = float(rdust)
-Tsublimate = float(Tsublimate)
-lnkfile4c = bytarr(strlen(lnkfile)+1)
-lnkfile4c[0:strlen(lnkfile)-1] = byte(lnkfile)
-lnkfile4c[strlen(lnkfile)] = byte(0)
-kuruczfile4c = bytarr(strlen(kurucz_file)+1)
-kuruczfile4c[0:strlen(kurucz_file)-1] = byte(kurucz_file)
-kuruczfile4c[strlen(kurucz_file)] = byte(0)
-userscaling = double(userscaling)
-iwa = float(iwa)
-aitoff_flag = long(aitoff_flag)
-densityhisto_flag = long(densityhisto_flag)
-opticaldepth_flag = long(opticaldepth_flag)
-scatteredlight_flag = long(scatteredlight_flag)
-thermalemission_flag = long(thermalemission_flag)
-verbose_flag = long(verbose_flag)
-generic_oc_exp = float(qexp)
-generic_oc_albedo = float(albedo)
-HG_g = float(g)
-oc_generic_flag = long(oc_generic_flag)
-HG_flag = long(HG_flag)
-extinction_flag = long(ext)
-xshift = float(xshift)
-effrdust = float(effrdust)
-markx = float(markx)
-marky = float(marky)
-markz = float(markz)
-markweight = float(markweight)
-nmarks = long(nmarks)
-markabs_flag = long(markabs_flag)
-azavg = long(azavg)
-distmask = float(distmask)
-ncostheta = long(ncostheta)
-internal_pfunc = np.ndarray(shape=(nlambda,ncostheta), mode="c")#fltarr(nlambda,ncostheta)
-costheta =  np.ndarray(shape=(ncostheta))
-nrdust=np.unique(rdust, return_inverse=False, return_counts=False, axis=None).size #nrdust = n_elements(uniq(rdust,sort(rdust)))
-pfunc = np.ndarray[shape=(nrdust,nlambda,ncostheta), mode="c"]#pfunc = fltarr(nrdust,nlambda,ncostheta)
-qabs  = np.ndarray[shape=(nrdust,nlambda), mode="c"]# fltarr(nrdust,nlambda)
-qsca  = np.ndarray[shape=(nrdust,nlambda), mode="c"]# fltarr(nrdust,nlambda)
-
-dustmap_c(<double*> histo.data,  histo.shape[1], histo.shape[0], inputfile4c, numfiles, datatype, \
-                  userdistance, fovx, fovy, userpixelsize, userinclination, userlongitude, userpa, \
-                  wavel.data, wavel.size, Lstar, Tstar, logg, kurucz, kuruczfile4c, fstar, \
-                  rdust, Tsublimate, lnkfile4c, userscaling, \
-                  iwa, aitoff_flag, densityhisto_flag, opticaldepth_flag, \
-                  scatteredlight_flag, thermalemission_flag, verbose_flag, \
-                  oc_generic_flag, generic_oc_exp, generic_oc_albedo, HG_flag, HG_g, \
-                  extinction_flag, xshift, effrdust, \
-                  markx, marky, markz, markweight, nmarks, markabs_flag, azavg, distmask, \
-                  ncostheta, internal_pfunc, costheta, pfunc, qabs, qsca, nrdust)
-   )
-
-
