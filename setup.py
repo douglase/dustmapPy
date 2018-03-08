@@ -14,7 +14,7 @@ from Cython.Distutils import build_ext
 setup(
     cmdclass={'build_ext': build_ext},
     ext_modules=[Extension("dustmap",
-                 sources=["dustmap.pyx", "dustmap/dustmap.c"],
+                 sources=["_dustmap.pyx", "dustmap/dustmap.c"],
                  include_dirs=[numpy.get_include()])],
 )
 
