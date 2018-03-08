@@ -272,6 +272,7 @@ def dustmap_func(          inputfile,
           cos_doubles(<double*> np.PyArray_DATA(hist),
                       <double*> np.PyArray_DATA(hist),
                       hist.shape[0])
+          print([Lstar,Tstar,wavel])
           dustmap(<double*> np.PyArray_DATA(hist),
                   <int> hist.shape[1],
                   <int> hist.shape[0],

@@ -13,20 +13,21 @@ pa = 45. #degrees
 opticaldepth = 1
 rdust = 1.
 thermal = 1
-wavel = np.array([10.],dtype=np.double)
+wavel = np.array([1.],dtype=np.double)
 Lstar = 1.
 Tstar = 5778.
 kurucz = 1
 logg=4.5
 composition = 'astrosil'
-scattered = 1
 hg = 1
 g = 0.1
 iwa=0.05*u.arcsecond
 tsublimate=1e10
 fstar= np.array([0.],dtype=np.double)
 scaling= np.empty(1,dtype=np.int)
+
 hist=np.empty([numpixels,numpixels],dtype=np.double)
+print(hist)
 dustmap.dustmap_func(inputfile,
           hist,
           distance,
@@ -39,5 +40,9 @@ dustmap.dustmap_func(inputfile,
           Tstar,
           fstar,
           composition,
+          Lstar=Lstar,
+          scatteredlight_flag=1,
+          verbose_flag=5,
           )
+print(hist)
           #pfunc,
