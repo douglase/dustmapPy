@@ -73,8 +73,8 @@ cdef extern from "dustmap/dmdatatypes.h":
            float oc_generic_flag,
            float generic_oc_exp,
            float generic_oc_albedo,
-           float HG_flag,
-           int HG_g,
+           int HG_flag,
+           float HG_g,
            int extinction_flag,
            float xshift,
            float effrdust,
@@ -106,19 +106,22 @@ def dustmap_func(          inputfile,
           fov,
           pixelsize,
           numpixels,
-          np.ndarray[double, ndim=1, mode="c"] wavel, #was lambda
+          np.ndarray[float, ndim=1, mode="c"] wavel, #was lambda
           Tstar,
-          np.ndarray[double, ndim=1, mode="c"] fstar not None,
+          np.ndarray[float, ndim=1, mode="c"] fstar not None,
           composition,
+          #np.ndarray[float, ndim=1, mode="c"] scaling not None,
           Tsublimate=1e10,
           datatype=1,
           generic_oc_albedo=0,
           generic_oc_exp=0,
           effrdust=0.0,
+
           markx= np.ascontiguousarray(np.array([0])),
           marky= np.ascontiguousarray(np.array([0])),
           markz= np.ascontiguousarray(np.array([0])),
           markweight= np.ascontiguousarray(np.array([0])),
+          scaling= np.ascontiguousarray(np.array([1e12],dtype=np.double)),
           rdust=0,
           nmarks=0,
           azavg=1,
@@ -132,7 +135,6 @@ def dustmap_func(          inputfile,
           inclination=0,
           longitude=0,
           pa=0,
-          scaling=np.ascontiguousarray(np.array([0])),
           logg=0,
           Lstar=0,
           kurucz=0,
@@ -227,7 +229,7 @@ def dustmap_func(          inputfile,
           rdust = np.float32(rdust)
           #Tsublimate = np.float_(Tsublimate)
           #lnkfile4c = bytarr(strlen(lnkfile)+1)
-          lnkfile4c = str('lnkfiles/'+composition+'.lnk').encode()
+          lnkfile4c = str('dustmap/lnkfiles/'+composition+'.lnk').encode()
           #lnkfile4c[0:strlen(lnkfile)-1] = byte(lnkfile)
           #lnkfile4c[strlen(lnkfile)] = byte(0)
           #kuruczfile4c = 'fp00k2odfnew.pck'.encode()# bytarr(strlen(kurucz_file)+1)
@@ -273,6 +275,7 @@ def dustmap_func(          inputfile,
                       <double*> np.PyArray_DATA(hist),
                       hist.shape[0])
           print([Lstar,Tstar,wavel])
+          print(["distance",distance])
           dustmap(<double*> np.PyArray_DATA(hist),
                   <int> hist.shape[1],
                   <int> hist.shape[0],
@@ -308,8 +311,8 @@ def dustmap_func(          inputfile,
                   <int> oc_generic_flag,
                   <float> generic_oc_exp,
                   <float> generic_oc_albedo,
-                  <float> HG_flag,
-                  <int> HG_g,
+                  <int> HG_flag,
+                  <float> HG_g,
                   <int> extinction_flag,
                   <float> xshift,
                   <float> effrdust,
