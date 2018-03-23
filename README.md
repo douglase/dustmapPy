@@ -1,8 +1,18 @@
 # dustmapPy
 python interface to dustmap
 
+Depends on cython.
 
-to setup:
+Test configuration:
+
+## Notes:
+
+Test system configuraton: 
+
+* Cython: 0.26.1
+* Python: Python 3.5.4 |Anaconda custom (64-bit)|
+
+##  setup:
 
 ```
 git submodule init
@@ -10,7 +20,7 @@ git submodule update
 python setup.py build_ext --inplace
 ```
 
-to test:
+## test:
 
 ```
 python test_map.py
