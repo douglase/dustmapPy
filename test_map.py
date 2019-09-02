@@ -9,25 +9,23 @@ fov = [1.*u.arcsecond]                 #mas
 pixelsize=0.005*u.arcsecond
 numpixels = 200
 datatype = 1
-composition = 'astrosil'
-inclination = 0 #degrees
+inclination = 60 #degrees
 longitude = 90. #degrees
 pa = 45. #;degrees
-opticaldepth = 0
+#opticaldepth = 0
 rdust = 1.
-thermal = 1
+thermal = 1 
+wavel = np.array([0.5],dtype=np.float32) #lambda in IDL
 Lstar = 1.
 Tstar = 5778.
 kurucz = 1
 logg = 4.5
+composition = 'astrosil'
 scattered = 1
-thermal = 0
-hg = 1
-g = 0.1
-#scaling= np.array([0.],dtype=np.double)
-wavel = np.array([0.5],dtype=np.float32)
-Tstar = 5778.
-
+#hg = 1
+#g = 0.1
+scaling= np.array([1e30],dtype=np.double)
+effrdust=0
 hist=np.zeros([numpixels,numpixels],dtype=np.double)
 print(hist)
 dustmap.dustmap_func(inputfile,
@@ -53,14 +51,14 @@ dustmap.dustmap_func(inputfile,
           rdust =rdust,
           Lstar = Lstar,
           kurucz = kurucz,
-          effrdust=1,
-          logg=4.5,
+          effrdust=effrdust,
+          logg=logg,
           #HG_flag = hg,
           #HG_g = g,
           iwa=0.00*u.arcsecond,
           Tsublimate=1e10,
           ncostheta=500,
-          scaling=np.array([1],dtype=np.double),
+          scaling=scaling,
           )
 print(hist)
 hist[0,:]=0 #dustmap is setting first row to 1 ?
@@ -86,16 +84,16 @@ try:
     plt.figure(figsize=[10,3])
     plt.subplot(131)
     plt.title("dustmapPy")
-    plt.imshow(np.log10(hist),origin="upper left")
+    plt.imshow(np.log10(hist),origin="upper left",interpolation="none")
     plt.colorbar()
     plt.subplot(132)
-    plt.imshow(np.log10(IDL.image),origin="upper left")
+    plt.imshow(np.log10(IDL.image),origin="upper left",interpolation="none")
     plt.colorbar()
     plt.title(idl_dustmap_file)
     plt.subplot(133)
     plt.title("residual")
     residual=IDL.image-hist
-    plt.imshow(residual)
+    plt.imshow(residual,origin="upper left",interpolation="none")
     plt.colorbar()
     plt.tight_layout()
     plt.savefig("IDL-python.png")
