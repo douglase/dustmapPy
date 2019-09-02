@@ -18,7 +18,7 @@ clone this repo:
 
     git clone https://github.com/douglase/dustmapPy
 
-clone the dustmap repo and add it as a submodule (folder) in your dustmappy directory:
+clone the [dustmap](https://github.com/douglase/dustmap) repo and add it as a submodule (folder) in your dustmappy directory:
 
     cd dustmapPy
     git submodule init
