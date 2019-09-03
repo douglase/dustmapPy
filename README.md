@@ -1,5 +1,6 @@
 # dustmapPy
-python interface to dustmap
+
+A python interface to the C code underlying Chris Stark's dustmap IDL debris disk modeling code.
 
 Depends on [cython](http://docs.cython.org/en/latest/).
 
