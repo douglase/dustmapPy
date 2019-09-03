@@ -39,7 +39,7 @@ Compares the results of an exampled dustmapPy call (Left panel of figure below) 
 
 
 ## Contributors:
-Python code developed by Ewan Douglas. 
+Python/cython code developed by Ewan Douglas. 
 
 Based on IDL and C dustmap library by Chris Stark, originally posted on http://www.starkspace.com/code/. If you use this code in research, please cite:
 
