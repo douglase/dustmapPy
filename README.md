@@ -28,12 +28,13 @@ build the repo:
 
     python setup.py build_ext --inplace
 
-## test:
+## test and example:
 
-Compare the results of an exampled dustmapPy call to an analogous IDL call of dustmap (sample_dustmap_call.pro) which can be found in the dustmap repo.
 
 ```
 python test_map.py
 ```
+
+Compares the results of an exampled dustmapPy call (Left panel of figure below) to an analogous IDL call of dustmap (middle panel) sample_dustmap_call.pro) which can be found in the dustmap repo and shows the residual (Right panel).
 
 ![DustmapPy call, python call, residual](IDL-python.png)
