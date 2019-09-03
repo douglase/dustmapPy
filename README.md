@@ -1,7 +1,7 @@
 # dustmapPy
 python interface to dustmap
 
-Depends on cython.
+Depends on [cython](http://docs.cython.org/en/latest/).
 
 Test system configuraton: 
 
