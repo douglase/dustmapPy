@@ -39,8 +39,9 @@ Compares the results of an exampled dustmapPy call (Left panel of figure below) 
 
 
 ## Contributors:
+Python code developed by Ewan Douglas. 
 
-Based on dustmap code by Chris Stark, originally posted on http://www.starkspace.com/code/. If you use this code in research, please cite:
+Based on IDL and C dustmap library by Chris Stark, originally posted on http://www.starkspace.com/code/. If you use this code in research, please cite:
 
 Stark, C. C. (2011). The Transit Light Curve of an Exozodiacal Dust Cloud. The Astronomical Journal, 142, 123. https://doi.org/10.1088/0004-6256/142/4/123
 
