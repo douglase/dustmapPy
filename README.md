@@ -10,7 +10,7 @@ Test system configuraton:
 * Python: Python 3.5.4 |Anaconda custom (64-bit)|
 * IDL comparison: Version 8.5.1 (linux x86_64 m64)
 
-##  setup:
+##  setup
 
 clone this repo:
 
@@ -26,7 +26,7 @@ build the repo:
 
     python setup.py build_ext --inplace
 
-## test and example:
+## test and example
 
 
 ```
@@ -38,7 +38,7 @@ Compares the results of an exampled dustmapPy call (Left panel of figure below) 
 ![DustmapPy call, python call, residual](IDL-python.png)
 
 
-## Contributors:
+## Contributors
 Python/cython code developed by Ewan Douglas. 
 
 Based on IDL and C dustmap library by Chris Stark, originally posted on http://www.starkspace.com/code/. If you use this code in research, please cite:
