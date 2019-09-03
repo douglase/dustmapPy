@@ -30,6 +30,10 @@ build the repo:
 
 ## test:
 
+Compare the results of an exampled dustmapPy call to an analogous IDL call of dustmap (sample_dustmap_call.pro) which can be found in the dustmap repo.
+
 ```
 python test_map.py
 ```
+
+![DustmapPy call, python call, residual](IDL-python.png)
