@@ -3,14 +3,11 @@ python interface to dustmap
 
 Depends on cython.
 
-Test configuration:
-
-## Notes:
-
 Test system configuraton: 
 
 * Cython: 0.26.1
 * Python: Python 3.5.4 |Anaconda custom (64-bit)|
+* IDL comparison: Version 8.5.1 (linux x86_64 m64)
 
 ##  setup:
 
