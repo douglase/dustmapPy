@@ -36,3 +36,11 @@ python test_map.py
 Compares the results of an exampled dustmapPy call (Left panel of figure below) to an analogous IDL call of dustmap (middle panel) sample_dustmap_call.pro) which can be found in the dustmap repo and shows the residual (Right panel).
 
 ![DustmapPy call, python call, residual](IDL-python.png)
+
+
+## Contributors:
+
+Based on dustmap code by Chris Stark, originally posted on http://www.starkspace.com/code/. If you use this code in research, please cite:
+
+Stark, C. C. (2011). The Transit Light Curve of an Exozodiacal Dust Cloud. The Astronomical Journal, 142, 123. https://doi.org/10.1088/0004-6256/142/4/123
+
