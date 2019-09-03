@@ -81,7 +81,7 @@ try:
     import scipy.io
     idl_dustmap_file="dustmap/sample_dustmap_call.sav"
     IDL=scipy.io.readsav(idl_dustmap_file)
-    plt.figure(figsize=[10,3])
+    plt.figure(figsize=[12,3])
     plt.subplot(131)
     plt.title("dustmapPy")
     plt.imshow(np.log10(hist),origin="upper left",interpolation="none")
