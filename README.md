@@ -1,16 +1,14 @@
 # dustmapPy
-python interface to dustmap
 
-Depends on cython.
+A python interface to the C code underlying Chris Stark's dustmap IDL debris disk modeling code.
 
-Test configuration:
-
-## Notes:
+Depends on [cython](http://docs.cython.org/en/latest/).
 
 Test system configuraton: 
 
 * Cython: 0.26.1
 * Python: Python 3.5.4 |Anaconda custom (64-bit)|
+* IDL comparison: Version 8.5.1 (linux x86_64 m64)
 
 ##  setup:
 
@@ -28,12 +26,13 @@ build the repo:
 
     python setup.py build_ext --inplace
 
-## test:
+## test and example:
 
-Compare the results of an exampled dustmapPy call to an analogous IDL call of dustmap (sample_dustmap_call.pro) which can be found in the dustmap repo.
 
 ```
 python test_map.py
 ```
+
+Compares the results of an exampled dustmapPy call (Left panel of figure below) to an analogous IDL call of dustmap (middle panel) sample_dustmap_call.pro) which can be found in the dustmap repo and shows the residual (Right panel).
 
 ![DustmapPy call, python call, residual](IDL-python.png)
