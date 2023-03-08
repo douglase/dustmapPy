@@ -45,3 +45,8 @@ Based on IDL and C dustmap library by Chris Stark, originally posted on http://w
 
 Stark, C. C. (2011). The Transit Light Curve of an Exozodiacal Dust Cloud. The Astronomical Journal, 142, 123. https://doi.org/10.1088/0004-6256/142/4/123
 
+Based on observations with the NASA/ESA Hubble Space Telescope obtained [from
+the Data Archive] at the Space Telescope Science Institute, which is operated by the
+Association of Universities for Research in Astronomy, Incorporated, under NASA
+contract NAS5-26555. Support for program number 15217 was
+provided through a grant from the STScI under NASA contract NAS5-26555.
